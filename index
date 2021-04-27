@@ -3,4 +3,7 @@
   <head>
     <title>Can you see this title?</title>
   </head>
+  <body>
+	<p>This is a test to get the redirect URL to get access to the Reddit API...</p>
+  </body>
 </html>
