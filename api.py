@@ -95,9 +95,16 @@ def get_token(code):
     token_json = response.json()
     return token_json["access_token"]
 
-@app.route('/search/')
+@app.route('/search_page/')
 def search_page():
-    return flask.render_template('index.html')
+    return flask.render_template('search_page.html')
+
+@app.route('/search/', methods=['POST', 'GET'])
+def search():
+    if request.method == 'POST':
+        query = request.form['searchBox']
+        return  flask.render_template('search_page.html', data=query)#flask.redirect(flask.url_for('search_page', data=query))
+    return 'Got a GET'
     
 def get_username(access_token):
     headers = base_headers()
@@ -108,4 +115,4 @@ def get_username(access_token):
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=65010)
+    app.run(debug=False, port=65010)
