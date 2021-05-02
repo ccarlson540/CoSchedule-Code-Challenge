@@ -5,15 +5,13 @@
   </head>
   <body>
 	<form action="{{ url_for('search') }}" method="post">
+		<p>Subreddit to Search: </p>
+		<input type="text", name="subreddit", placeholder="Leave blank to search for subreddits"></input>
+		<br>
 		<p>Search: </p>
 		<input name="searchBox" placeholder="Search for anything..."></input>
 		<br>
 		<button type="submit">Search</button>
 	</form>
-	<div id="results">
-		{% for item in data %}
-			<div class="result-item">{{item}}</div>
-		{% endfor %}
-	</div>
   </body>
 </html>

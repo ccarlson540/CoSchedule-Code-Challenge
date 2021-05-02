@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Search</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<style>
+		.checked {
+			color: orange;
+		}
+	</style>
+  </head>
+  <body>
+	<form action="{{ url_for('search') }}" method="post">
+		<p>Subreddit to Search: </p>
+		<input type="text", name="subreddit", placeholder="Leave blank to search for subreddits"></input>
+		<br>
+		<p>Search: </p>
+		<input name="searchBox" placeholder="Search for anything..."></input>
+		<br>
+		<button type="submit">Search</button>
+	</form>
+		<div id="results">
+		{% for item in data['data']['children'] %}
+			<div class="result-item">
+				<h3>Item:</h3>
+				<!--<p>{{item}}</p>-->
+				<table>
+					<tr>
+						<th>{{ item['data']['title'] }}</th>
+						<td>Found in: {{ item['data']['subreddit'] }}</td>
+					</tr>
+					<tr>
+						<td><img height="{{ item['data']['thumbnail_height'] }}" width="{{ item['data']['thumbnail_width'] }}" src="{{ item['data']['thumbnail'] }}"</td>
+						<td>{{ item['data']['selftext'] }}</td>
+					</tr>
+					<!-- Ratings -->
+					<tr>
+						<span class="fa fa-star"></span>
+						<span class="fa fa-star"></span>
+						<span class="fa fa-star"></span>
+						<span class="fa fa-star"></span>
+						<span class="fa fa-star"></span>
+					</tr>
+					<!-- Comments -->
+						<form action={{url_for('post_comment') }} methods=["POST", "PATCH"]>
+							<input name="comment" type="text"></input>
+						</form>
+					<tr>
+						
+					</tr>
+				</table>
+			</div>
+		{% endfor %}
+	</div>
+	<script>
+		document.addEventListener('DOMContentLoaded', function() {
+			var tables = document.getELementById('results').getElementsByTagName('table');
+			document.write(tables.length)
+			for (var i = 0; i < tables.length; i++) {
+				var newRow = tables[i].insertRow();
+				var newCell = newRow.insertCell();
+				newCell.innerHTML = '';
+			}
+		}, false);
+		function add_comment_fields() {
+			
+		}
+		window.onload = add_comment_fields()
+	</script>
+  </body>
+</html>

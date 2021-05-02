@@ -12,11 +12,16 @@ import requests.auth
 import urllib
 import pandas as pd
 import flask
+from flask_session import Session
+import json
 
 CLIENT_ID = 'CO_3bjGxqJkH0A'
 CLIENT_SECRET = 'pHK5oLHVTIlRdxHEAM_ASarbtG3x8w'
 REDIRECT_URI = 'http://localhost:65010/reddit_callback'
 BASE_URL = 'http://localhost:65010/'
+
+#TODO: Delete testing variables after finishing tests
+responses = [] #empty list to append responses to for testing. 
 
 
 def user_agent():
@@ -27,6 +32,10 @@ def base_headers():
 
 
 app = Flask(__name__)
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_TYPE"] = "filesystem"
+Session(app)
+
 @app.route('/')
 def homepage():
     #TODO hide behind my site's login
@@ -79,6 +88,7 @@ def reddit_callback():
         abort(403)
     code = request.args.get('code')
     access_token = get_token(code)
+    flask.session['access_token'] = access_token
     # TODO: pass access token on redirect
     return flask.redirect(flask.url_for('search_page'))
 
@@ -103,8 +113,22 @@ def search_page():
 def search():
     if request.method == 'POST':
         query = request.form['searchBox']
-        return  flask.render_template('search_page.html', data=query)#flask.redirect(flask.url_for('search_page', data=query))
-    return 'Got a GET'
+        subreddit = request.form['subreddit']
+        results = search_reddit(subreddit, query)
+        return  flask.render_template('search_page_result.html', data=results)
+    
+@app.route('/search/', methods=['POST', 'PATCH', 'GET'])
+def post_comment():
+    #TODO
+    pass
+
+def search_reddit(subreddit, q):
+    headers = base_headers()
+    headers.update({"Authorization": "bearer " + flask.session.get('access_token', None)})
+    response = requests.get("https://oauth.reddit.com/r/" + subreddit 
+                            + "/search?q=" + q, headers=headers)
+    results = response.json()
+    return results
     
 def get_username(access_token):
     headers = base_headers()
