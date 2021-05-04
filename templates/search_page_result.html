@@ -42,7 +42,7 @@
 						<span class="fa fa-star"></span>
 					</tr>
 					<!-- Comments -->
-						<form action={{url_for('post_comment') }} methods=["POST", "PATCH"]>
+						<form action={{url_for('post_comment', post_id=item['data']['id']) }} method="POST">
 							<input name="comment" type="text"></input>
 						</form>
 					<tr>

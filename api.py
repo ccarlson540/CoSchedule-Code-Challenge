@@ -112,15 +112,26 @@ def search_page():
 @app.route('/search/', methods=['POST', 'GET'])
 def search():
     if request.method == 'POST':
-        query = request.form['searchBox']
-        subreddit = request.form['subreddit']
-        results = search_reddit(subreddit, query)
+        flask.session['query'] = request.form['searchBox']
+        flask.session['subreddit'] = request.form['subreddit']
+        results = search_reddit(flask.session['subreddit'], flask.session['query'])
         return  flask.render_template('search_page_result.html', data=results)
     
-@app.route('/search/', methods=['POST', 'PATCH', 'GET'])
-def post_comment():
-    #TODO
-    pass
+@app.route('/search/<post_id>/', methods=['POST', 'PATCH', 'GET'])
+def post_comment(post_id): 
+    if request.method == 'POST':
+        #new comment
+        username = 'asdf' #flask.session['username'] #TODO update username when login is created
+        comments = pd.read_csv('comments.csv')
+        new_comment = request.form['comment']
+        comments = comments.append({"Post_ID" : post_id, "Username" : username}
+                                   , ignore_index=True)
+        comments.to_csv('comments.csv')
+        reddit_data = search_reddit(flask.session['subreddit'], flask.session['query'])
+        results = add_comments_to_reddit_data(reddit_data)
+        # results = add_post_ratings_to_reddit_data(reddit_data)
+        # results = format_data(reddit_data, live_comments, live_ratings)
+        return flask.render_template('search_page_result.html', data=results)
 
 def search_reddit(subreddit, q):
     headers = base_headers()
@@ -129,6 +140,23 @@ def search_reddit(subreddit, q):
                             + "/search?q=" + q, headers=headers)
     results = response.json()
     return results
+
+def add_comments_to_reddit_data(reddit_data):
+    # search comments.csv for comments on each post_id
+    comments_db = pd.read_csv('comments.csv')
+    reddit_data = json.loads(reddit_data)
+    for post in reddit_data['data']['children']:
+        post['data']['comments'] = list(comments_db[comments_db['Post_ID'] == post['data']['id']])
+    return reddit_data
+        
+
+def add_post_ratings_to_reddit_data():
+    #TODO search ratings.csv for ratings on each post_id
+    pass
+
+def format_data(reddit_data, comments, ratings):
+    #TODO format data to make friendly JSON file that contains only the necessary info
+    pass
     
 def get_username(access_token):
     headers = base_headers()
